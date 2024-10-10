@@ -1,5 +1,5 @@
-import { Paragraph } from '@acme/ui';
-import { ComponentProps } from 'react';
+import { Paragraph } from "@acme/ui";
+import { ComponentProps } from "react";
 
 type HomeIconProps = ComponentProps<typeof Paragraph>;
 

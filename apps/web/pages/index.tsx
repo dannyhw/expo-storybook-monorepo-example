@@ -1,7 +1,7 @@
-import { HomeScreen, HomeIcon } from '@acme/feature-home';
-import Head from 'next/head';
+import { HomeScreen, HomeIcon } from "@acme/feature-home";
+import Head from "next/head";
 
-import styles from '../styles/Home.module.css';
+import styles from "../styles/Home.module.css";
 
 export default function Home() {
   return (
