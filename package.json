@@ -3,28 +3,23 @@
   "name": "@acme/monorepo",
   "scripts": {
     "dev": "turbo dev",
-    "dev:mobile": "turbo dev --filter=\"{./apps/mobile}...\"",
-    "dev:web": "turbo dev --filter=\"{./apps/web}...\"",
+    "dev:example": "turbo dev --filter=\"{./apps/example}...\"",
+    "dev:storybook": "turbo dev --filter=\"{./apps/ui-library}...\"",
     "lint": "turbo lint",
     "test": "turbo test",
     "format": "prettier --write .",
     "build": "turbo build",
-    "build:mobile": "turbo build --filter=\"...{./apps/mobile}\"",
-    "build:web": "turbo build --filter=\"...{./apps/web}\"",
+    "build:example": "turbo build --filter=\"...{./apps/example}\"",
     "lint:repo": "sherif"
   },
   "devDependencies": {
-    "sherif": "^1.0.0",
-    "turbo": "^1.10.7",
-    "typescript": "~5.3.3"
+    "sherif": "^1.5.0",
+    "turbo": "^1.13.4",
+    "typescript": "^5.8.3"
   },
   "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "@babel/*",
-        "expo-modules-*",
-        "typescript"
-      ]
+    "overrides": {
+      "react-docgen-typescript": "2.2.2"
     }
   },
   "prettier": {},
