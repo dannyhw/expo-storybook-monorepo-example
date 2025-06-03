@@ -5,9 +5,9 @@
   "description": "Acme eslint configuration for React Native",
   "author": "Cedric van Putten <me@bycedric.com>",
   "license": "MIT",
-  "main": "index.js",
+  "main": "eslint.config.js",
   "files": [
-    "index.js"
+    "eslint.config.js"
   ],
   "scripts": {
     "lint": "eslint --ext js,ts,tsx ."
