@@ -12,9 +12,9 @@
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4.6.4",
-    "@react-native-async-storage/async-storage": "1.23.1",
-    "@react-native-community/datetimepicker": "8.0.1",
-    "@react-native-community/slider": "4.5.2",
+    "@react-native-async-storage/async-storage": "2.1.2",
+    "@react-native-community/datetimepicker": "8.3.0",
+    "@react-native-community/slider": "4.5.6",
     "expo": "~53.0.6",
     "expo-constants": "~17.1.5",
     "expo-status-bar": "~2.2.3",
@@ -24,13 +24,13 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.5",
     "react-native-safe-area-context": "5.4.0",
-    "react-native-svg": "15.2.0",
+    "react-native-svg": "15.11.2",
     "react-native-web": "~0.20.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.4",
-    "@expo/metro-runtime": "~3.2.3",
+    "@expo/metro-runtime": "~5.0.4",
     "@storybook/addon-ondevice-actions": "^9",
     "@storybook/addon-ondevice-backgrounds": "^9",
     "@storybook/addon-ondevice-controls": "^9",
