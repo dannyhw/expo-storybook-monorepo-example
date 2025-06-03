@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "turbo dev",
     "dev:example": "turbo dev --filter=\"{./apps/example}...\"",
+    "dev:storybook": "turbo dev --filter=\"{./apps/ui-library}...\"",
     "lint": "turbo lint",
     "test": "turbo test",
     "format": "prettier --write .",
