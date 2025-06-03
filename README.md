@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Expo monorepo</h1>
-  <p>Fast pnpm monorepo for cross-platform apps built with Expo and React</p>
+  <p>Fast pnpm monorepo for cross-platform apps built with Expo</p>
 </div>
 
 <p align="center">
@@ -23,7 +23,7 @@ This repository uses both [pnpm](https://pnpm.io/) and [Turborepo](https://turbo
 
 ### What about Metro?
 
-In **apps/mobile** we leverage the Metro cache to speed up building and publishing. We use Turborepo to restore or invalidate this cache. To populate this Metro cache, the **apps/mobile** has a [`$ pnpm build`](./apps/mobile/package.json#L9) script that exports React Native bundles. The resulting Metro cache is then reused when [publishing previews](./.github/workflows/preview.yml#L26-L28).
+In **apps/example** we leverage the Metro cache to speed up building and publishing. We use Turborepo to restore or invalidate this cache. To populate this Metro cache, the **apps/example** has a [`$ pnpm build`](./apps/example/package.json#L9) script that exports React Native bundles. The resulting Metro cache is then reused when [publishing previews](./.github/workflows/preview.yml#L26-L27) or [deploying the app](./.github/workflows/deploy.yml) with [EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/).
 
 ## ℹ️ Should I use it?
 
@@ -49,14 +49,12 @@ Because this monorepo uses [Turborepo](https://turbo.build/repo), you don't need
 - `$ pnpm test` - Run all tests for packages with Jest tests.
 - `$ pnpm build` - Build all **apps** and **packages** for production or to publish them on npm.
 
-When developing or deploying a single app, you might not need the development server for all apps. For example, if you need to make a fix in the mobile app, you don't need the web development server. Or when deploying a single app to production, you only need to build that single app with all dependencies.
+When developing or deploying a single app, you might not need the development server for all apps. For example, if you need to make a fix in the example app, you don't need the dev server for all other apps. Or when deploying a single app to production, you only need to build that single app with all dependencies only used in this app.
 
 This monorepo uses a simple npm script convention of `dev:<app-name>` and `build:<app-name>` to keep this process simple. Under the hood, it uses [Turborepo's workspace filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering), defined as an npm script in the root [**package.json**](./package.json).
 
-- `$ pnpm dev:mobile` - Build and watch **app/mobile** and all **packages** used in mobile, for development.
-- `$ pnpm dev:web` - Build and watch **app/web** and all **packages** used in web, for development.
-- `$ pnpm build:mobile` - Build **apps/mobile** and all **packages** used in mobile, for production deployments
-- `$ pnpm build:web` - Build **apps/web** and all **packages** used in web, for production deployments
+- `$ pnpm dev:example` - Build and watch **app/example** and all **packages** used in example, for development.
+- `$ pnpm build:example` - Build **apps/example** and all **packages** used in example, for production deployments
 
 ### Switching to bun, yarn or npm
 
@@ -77,8 +75,7 @@ You can use any package manager with Expo. If you want to use bun, yarn, or pnpm
 
 ### Apps
 
-- [`apps/mobile`](./apps/mobile) - Expo app using `eslint-config` and `feature-home` packages.
-- [`apps/web`](./apps/web) - Next.js app using `eslint-config` and `feature-home` packages.
+- [`apps/example`](./apps/example) - Expo app using `eslint-config` and `feature-home` packages.
 
 ### Packages
 
@@ -88,7 +85,8 @@ You can use any package manager with Expo. If you want to use bun, yarn, or pnpm
 
 ## 👷 Workflows
 
-- [`build`](./.github/workflows/build.yml) - Starts the EAS builds for **apps/mobile** using the given profile.
+- [`build`](./.github/workflows/build.yml) - Starts the EAS builds for **apps/example** using the given profile.
+- [`deploy`](./.github/workflows/deploy.yml) - Deploys apps to a preview URL or production URL using [EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/).
 - [`preview`](./.github/workflows/preview.yml) - Publishes apps to a PR-specific release channel and adds a QR code to that PR.
 - [`test`](./.github/workflows/test.yml) - Ensures that the apps and packages are healthy on multiple OSs.
 
@@ -121,30 +119,28 @@ If you are using multiple versions, try to update all **package.json** files, or
 
 Reusing Metro caches can be dangerous if you use Babel plugins like [transform-inline-environment-variables](https://babeljs.io/docs/en/babel-plugin-transform-inline-environment-variables/). When using Babel plugins to swap out environment variables for their actual value, you are creating a dependency on environment variables. Because Metro is unaware of dependencies on environment variables, Metro might reuse an incorrect cached environment variable.
 
-Since Turborepo handles the cache in this repository, we can leverage [caching based on environment variables](https://turbo.build/repo/docs/core-concepts/caching#altering-caching-based-on-environment-variables). This invalidates the Metro cache whenever certain environment variables are changed and avoid reusing incorrect cached code.
+Since Turborepo handles the cache in this repository, you could leverage [caching based on environment variables](https://turbo.build/repo/docs/core-concepts/caching#altering-caching-based-on-environment-variables). This invalidates the Metro cache whenever certain environment variables are changed and avoid reusing incorrect cached code.
 
 > [!TIP]
-> Expo now supports `.env` files out-of-the-box. This also means that Metro is now smart enough to invalidate the cache whenever these variables change. There is no need to do this manually anymore.
+> In this repository we rely on [Expo's built-in environment variables support](https://docs.expo.dev/guides/environment-variables/) to avoid Babel caching related issues with Metro.
 
 ### pnpm workarounds
 
-In the current React Native ecosystem, there are a lot of implicit dependencies. These can be from the native code that is shipped within packages, or even implicit dependencies through installing a specific version of Expo or React Native. In the newer package managers like pnpm, you will run into issues due to these implicit dependencies. Besides that there are other issues like [Metro not following symlinks](https://github.com/facebook/metro/issues/1).
+In the current React Native ecosystem, there are a lot of implicit dependencies. These can be from the native code that is shipped within packages, or even implicit dependencies through installing a specific version of Expo or React Native. In the newer package managers like pnpm, you will run into issues due to these implicit dependencies.
 
-To workaround these issues, we have to change some config:
+To workaround these issues, we changed the following:
 
-1. Let pnpm generate a flat **node_modules** folder, without symlinks. You can do that by creating a root [**.npmrc**](./.npmrc) file containing ([`node-linker=hoisted`](https://pnpm.io/npmrc#node-linker)). This works around two things; no Metro symlink support, and having a simple way to determine where the modules are installed (see point 3).
+1. Let pnpm generate a flat **node_modules** folder, without fully isolating all modules. You can do that by creating a root [**.npmrc**](./.npmrc) file containing ([`node-linker=hoisted`](https://pnpm.io/npmrc#node-linker)). This works around the issue where Expo and React Native doesn't always have correct dependency chains towards consumed libraries. Expo is actively working on removing the last few remaining issues to fully enable isolated modules, see the [internal dependency validation check](https://github.com/expo/expo/blob/main/tools/src/check-packages/checkDependenciesAsync.ts#L28).
 
-2. Either disable [`strict-peer-dependencies`](https://pnpm.io/npmrc#strict-peer-dependencies) or add [`peerDependencyRules.ignoreMissing`](./package.json#L14-L22) rules in the **package.json**. This disables some of the expected implicit peer dependencies issues. Without these changes, pnpm will fail on install asking you to install various peer dependencies.
-
-3. Update the **metro.config.js** configuration for usage in monorepos. Full explanation per configuration option can be found in the [Expo docs](https://docs.expo.dev/guides/monorepos/#modify-the-metro-config). The only addition in this repository is the [`config.cacheStores`](./apps/mobile/metro.config.js#L22-L24). This change moves the Metro cache to a place which is accessible by Turborepo, our main cache handler (see [Why is it fast?](#-why-is-it-fast)).
+2. Customize the **metro.config.js** configuration for usage in this monorepo. Full explanation per configuration option can be found in the [**metro.config.js**](./apps/example/metro.config.js) itself. The only addition in this repository is the [`config.cacheStores`](./apps/example/metro.config.js#L22-L25). This change moves the Metro cache to a place which is accessible by Turborepo, our main cache handler (see [Why is it fast?](#-why-is-it-fast)).
 
 ### Precompile packages
 
-EAS only sends the files which are committed to the repository. That means [the `packages/*/build` folders](.gitignore#L3) need to be generated before building our apps. To tell EAS how to compile our packages, we can [use the `postinstall` hook](https://docs.expo.dev/build-reference/how-tos/#how-to-set-up-eas-build-with).
+EAS only sends the files which are committed to the repository. That means [the `packages/*/build` folders](.gitignore#L3) need to be generated before building our apps. To tell EAS how to compile our packages, we can [use the `postinstall` hook](https://docs.expo.dev/build-reference/build-with-monorepos/).
 
 ### Running EAS from apps directories
 
-As of writing, the `eas build` command needs to be executed from the package folder itself. EAS will still create a tarball with all files from your monorepo, but runs the build commands from this local folder. You can see this happening in the [build workflow](./.github/workflows/build.yml#L32).
+As of writing, the `eas build` or `eas deploy` commands need to be executed from the package folder itself. EAS will still create a tarball with all files from your monorepo, but runs the build commands from this local folder. You can see this happening in the [build workflow](./.github/workflows/build.yml#L32).
 
 ### Using local credentials in CI
 
@@ -158,6 +154,6 @@ _No ongoing issues, we are actively monitoring and fixing potential issues_
 
 <div align="center">
   <br />
-  with&nbsp;:heart:&nbsp;&nbsp;<strong>byCedric</strong>
+  with&nbsp;❤️&nbsp;&nbsp;<strong>byCedric</strong>
   <br />
 </div>
