@@ -1,7 +1,8 @@
+const { defineConfig } = require("eslint/config");
 const config = require("@acme/eslint-config");
 const globals = require("globals");
 
-module.exports = [
+module.exports = defineConfig([
   config,
   { ignores: ["node_modules", "build", ".expo", ".expo-shared"] },
   {
@@ -10,4 +11,4 @@ module.exports = [
       globals: globals.node,
     },
   },
-];
+]);
